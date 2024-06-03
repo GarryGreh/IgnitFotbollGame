@@ -8,7 +8,9 @@ public class PlayerController : MonoBehaviour
     public float rangeAttack;
     public LayerMask mask;
     [SerializeField]
-    private float hitPower = 30;
+    private float hitPower = 200;
+    private bool isHitBonus;
+    private bool isHit;
 
     [SerializeField] private float speed;
     private float currentSpeed;
@@ -18,6 +20,13 @@ public class PlayerController : MonoBehaviour
     private Vector3 move;    
     private CharacterController characterController;
     private Animator animator;
+
+    private Vector3 startPos;
+    private Vector3 currentPos;
+    private float distance;
+
+    private bool isBonusSpeed;
+    private float bonusTimer = 10;
 
     private int currentLineMove = 0; // -1 - лева€ полоса, 0 - средн€€, 1 - права€
     private float distanceToLine = 3;
@@ -35,9 +44,26 @@ public class PlayerController : MonoBehaviour
         currentSpeed = speed;
         characterController = GetComponent<CharacterController>();
         animator = GetComponent<Animator>();
+        startPos = transform.position;
     }
     private void Update()
-    {        
+    {
+        Debug.Log(isHit);
+        if (isBonusSpeed)
+        {
+            bonusTimer -= Time.deltaTime;
+            if(bonusTimer <= 0 )
+            {
+                isBonusSpeed = false;
+                bonusTimer = 10;
+                ResetSpeed();
+            }
+        }
+
+        currentPos = transform.position;
+        distance = Vector3.Distance(startPos, currentPos);
+        GameManager.Instance.SetDistance(distance);
+
         if(swipeName != null)
         {
             if(swipeName == "left")
@@ -100,11 +126,24 @@ public class PlayerController : MonoBehaviour
     public void Hit()
     {
         Collider[] enemies = Physics.OverlapSphere(hitPoint.position, rangeAttack, mask);
-        
+
+        isHit = true;
+        if (!isHitBonus)
+        {
+            hitPower = 200;
+        }
+        else
+        {
+            hitPower = 500;
+            isHitBonus = false;
+        }
         foreach(var enemy in enemies)
         {
-            Debug.Log(enemy.name);
-            enemy.gameObject.GetComponent<Enemy>().GetHit(hitPower);
+            //Debug.Log(enemy.name);
+            if (enemy.gameObject.GetComponent<Enemy>())
+            {
+                enemy.gameObject.GetComponent<Enemy>().GetHit(hitPower);
+            }
         }
         
     }
@@ -112,9 +151,19 @@ public class PlayerController : MonoBehaviour
     {
         Gizmos.DrawWireSphere(hitPoint.position, rangeAttack);
     }
+    public void HitBonus(bool _hit)
+    {
+        isHitBonus = _hit;
+    }
+    public void BonusSpeed()
+    {
+        currentSpeed *= 2;
+        isBonusSpeed = true;
+    }
     public void ResetSpeed()
     {
         currentSpeed = speed;
+        isHit = false;
     }
     private void FixedUpdate()
     {
@@ -126,5 +175,13 @@ public class PlayerController : MonoBehaviour
     {
         //Debug.Log(_swipeName);
         swipeName = _swipeName;
+    }
+    private void OnTriggerEnter(Collider other)
+    {        
+        if (other.gameObject.tag == "Enemy" && !isHit)
+        {
+            GameManager.Instance.SubstractHeart();
+           // Debug.Log("dfffefff");
+        }
     }
 }
