@@ -48,7 +48,7 @@ public class PlayerController : MonoBehaviour
     }
     private void Update()
     {
-        Debug.Log(isHit);
+        //Debug.Log(isHit);
         if (isBonusSpeed)
         {
             bonusTimer -= Time.deltaTime;
@@ -107,6 +107,11 @@ public class PlayerController : MonoBehaviour
             targetPosition += Vector3.right * distanceToLine;
         }
         transform.position = targetPosition;
+
+        characterController.enabled = false;
+        characterController.transform.position = new Vector3 (targetPosition.x, transform.position.y, transform.position.z);
+        characterController.enabled = true;
+       // move.x = targetPosition.x;
         //Debug.Log(currentLineMove);
        // Debug.Log(targetPosition);
         //move = new Vector3(transform.position.x, transform.position.y, 1.0f);
@@ -125,9 +130,10 @@ public class PlayerController : MonoBehaviour
     }
     public void Hit()
     {
-        Collider[] enemies = Physics.OverlapSphere(hitPoint.position, rangeAttack, mask);
-
         isHit = true;
+
+        Collider[] enemies = Physics.OverlapSphere(hitPoint.position, rangeAttack, mask);
+        
         if (!isHitBonus)
         {
             hitPower = 200;
@@ -170,6 +176,7 @@ public class PlayerController : MonoBehaviour
         move.y += gravity * Time.fixedDeltaTime;
         move.z = currentSpeed;
         characterController.Move(move * Time.fixedDeltaTime);
+        //Debug.Log(move.x);
     }
     public void SwipeCheck(string _swipeName)
     {
