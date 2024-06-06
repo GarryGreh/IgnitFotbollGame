@@ -7,12 +7,16 @@ public class GeneratorContentLevel : MonoBehaviour
     public GameObject[] obstacles;
     public GameObject[] bonuses;
 
+    private List<GameObject> currentContent = new List<GameObject>();
+    private List<GameObject> removeListContent = new List<GameObject>();
+
     private float currentPosZSpawn;
     private int bonusChance = 6;
     private int[] spawnLines = { -3, 0, 3 };
     private int[] mixLine;
 
     private bool bonusEnabled = false;
+    private LevelGenerator lvlGen;
 
     private void Start()
     {
@@ -21,12 +25,26 @@ public class GeneratorContentLevel : MonoBehaviour
         //{
         //    Debug.Log(mixLine[i]);
         //}
-        for (int i = 0; i < 10; i++)
+        lvlGen = GetComponent<LevelGenerator>();
+        Spawn();
+        //for (int i = 0; i < 25; i++)
+        //{
+        //    SpawnContent();
+        //}
+    }
+    private void Update()
+    {
+        //здесь читать позицию игрока и удалять всё что за спиной
+
+    }
+    public void Spawn()
+    {
+        for (int i = 0; i < 15; i++)
         {
             SpawnContent();
         }
     }
-    private void SpawnContent()
+    public void SpawnContent()
     {
         currentPosZSpawn += RandomDistanceZ();
         int numObstacles = RandonNumberObstacles();
@@ -60,6 +78,8 @@ public class GeneratorContentLevel : MonoBehaviour
                 if(numObstacles > 0 && i < numObstacles)
                 {
                     GameObject obs = Instantiate(obstacles[RandomObstacles()], spawnPos, Quaternion.identity);
+                    currentContent.Add(obs);
+
                     if (obs.GetComponent<Enemy>())
                     {
                         obs.transform.rotation = new Quaternion(0.0f, 180.0f, 0.0f, 0.0f);
@@ -69,7 +89,9 @@ public class GeneratorContentLevel : MonoBehaviour
                 {
                     if (bonusEnabled)
                     {
-                        Instantiate(bonuses[RandomBonus()], spawnPos, Quaternion.identity);
+                        GameObject _bonus = Instantiate(bonuses[RandomBonus()], spawnPos, Quaternion.identity);
+                        currentContent.Add(_bonus);
+
                         if(bonusChance > 0)
                         {
                             bonusChance--;
@@ -87,6 +109,38 @@ public class GeneratorContentLevel : MonoBehaviour
             }
         }
     }
+    //public void AddToDeletionList()
+    //{
+    //    foreach(GameObject current in currentContent)
+    //    {
+    //        if(lvlGen.playerPos.position.z > current.transform.position.z)
+    //        {
+    //           removeListContent.Add(current);
+    //        }
+    //    }
+    //}
+    public void DeleteContent()
+    {
+        for (int i = 0; i < 10; i++)
+        {
+            Destroy(currentContent[0]);
+            currentContent.RemoveAt(0);
+        }
+        
+        //foreach (GameObject current in currentContent)
+        //{
+        //    if (lvlGen.playerPos.position.z > current.transform.position.z)
+        //    {
+        //        removeListContent.Add(current);
+        //    }
+        //}
+        //foreach (GameObject remove  in removeListContent)
+        //{
+        //    currentContent.Remove(remove);
+        //    removeListContent.Remove(remove);
+        //    Destroy(remove);
+        //}
+    }
     private int RandomObstacles()
     {
         return Random.Range(0, obstacles.Length);
@@ -97,11 +151,11 @@ public class GeneratorContentLevel : MonoBehaviour
     }
     private float RandomDistanceZ()
     {
-        return Random.Range(30.0f, 70.0f);
+        return Random.Range(30.0f, 50.0f);
     }
     private int RandonNumberObstacles()
     {
-        return Random.Range(-1, 4);
+        return Random.Range(0, 4);
     }
     private bool ChanceBonus()
     {
@@ -126,26 +180,4 @@ public class GeneratorContentLevel : MonoBehaviour
         }
         return lines;
     }
-
-        //рандомное расстояние следуюшего спавна по оси Z от 30 до 70
-        //позиция спавна в данный момент = 0, затем прибавляется рандомное расстояние
-        //рандомное количество препятствий в ряд (-1, 4)
-        //если количество препятствий < 3 определяем будет бонус или нет
-        //для этого нужна переменная int например bonusChance = 6 которая, каждый спавн бонуса будет декрементироваться
-        //будет бонус или нет будет определяться рандомно (-5, bonusChance) - если > 0, то будет бонус
-        //при спавне бонуса - bonusChance--; как только он достигнет 0, то сбрасывается по умолчанию на 6
-        //затем нужно определить на какой полосе будет стоять то что будет спавниться
-        //для этого нужно создать массив int[] lines = {-3, 0, 3};, а затем перемешивать его
-
-        //перемешивание массива: в цикле перебираем массив lines[] создаём переменную к которой присваиваем текущее значение
-        //и переменную которая определяет рандомный индекс массива, затем текущему элементу присваиваем рандомный элемент,
-        //а рандомному элементу присваиваем текущее значение
-
-        //перед спавном, зная сколько элементов будет спавниться - нужно создать переменную lenghtSpawn, она будет хранить в себе общее количество элементов
-        //и зная позицию спавна, нужно создать Vector3, где будет храниться позиция данного спавна
-        //спавн будет в цикле, количество итераций которого будет определять lenghtSpawn (цикл начать с 1)
-        //когда всё определено, нужно создать условие - если препятствий > 0 и i не превышает их количество - 
-        //то спавним препятствия, а если препятствий для спавна <= 0 или i == количество препятствий и бонусы = тру, то спавним бонусы
-        //автоматически бонусы не будут спавниться если бонусы = фолс, и закончилось число итераций.
-
 }

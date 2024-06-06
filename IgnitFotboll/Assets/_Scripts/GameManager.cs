@@ -12,6 +12,9 @@ public class GameManager : MonoBehaviour
     public TextMeshProUGUI coinsText;
     public TextMeshProUGUI heartsText;
 
+    public GameObject gameOverPanel;
+    public TextMeshProUGUI disOverText;
+
     private float distance;
     private int coins;
     private int maxHearts = 3;
@@ -19,6 +22,8 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
+        Time.timeScale = 1.0f;
+        gameOverPanel.SetActive(false);
         Instance = this;
         currentHeart = maxHearts;
     }
@@ -42,15 +47,22 @@ public class GameManager : MonoBehaviour
     }
     public void SubstractHeart()
     {
-        if(currentHeart > 0)
-        {
-            currentHeart--;
+        currentHeart--;
+        if (currentHeart > 0)        {
+            
             heartsText.text = currentHeart.ToString();
         }
         else if(currentHeart <= 0)
         {
             //конец игры
             //пройденная дистанция
+            GameOver();
         }
+    }
+    public void GameOver()
+    {
+        Time.timeScale = 0.0f;
+        gameOverPanel.SetActive(true);
+        disOverText.text = "Distance: " + distance.ToString("f0") + " m";
     }
 }

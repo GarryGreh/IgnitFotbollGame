@@ -12,10 +12,12 @@ public class LevelGenerator : MonoBehaviour
 
     private List<GameObject> mapParts = new List<GameObject>();
     private float spawnPos = 0;
-    private float stepSpawn = 500;    
+    private float stepSpawn = 500;
+    private GeneratorContentLevel lvlGen;
 
     private void Start()
     {
+        lvlGen = GetComponent<GeneratorContentLevel>();
         for(int i = 0; i < startMap; i++)
         {
             SpawnMap();
@@ -23,10 +25,16 @@ public class LevelGenerator : MonoBehaviour
     }
     private void Update()
     {
-        if(playerPos.position.z - 500 > spawnPos - (startMap * stepSpawn))
-        {
+        //if (playerPos.position.z - 450 > spawnPos - (startMap * stepSpawn))
+        //{
+        //    Debug.Log(spawnPos - (startMap * stepSpawn));
+        //}
+        if (playerPos.position.z - 500 > spawnPos - (startMap * stepSpawn))
+        {            
             SpawnMap();
             DeleteMap();
+            lvlGen.Spawn();
+            lvlGen.DeleteContent();
         }
     }
     private void SpawnMap()

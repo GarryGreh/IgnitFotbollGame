@@ -4,6 +4,11 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
+    [Header("Audio")]
+    public AudioSource laughtAudio;
+    public AudioSource hitAudio;
+
+    [Header("Other")]
     public Transform hitPoint;
     public float rangeAttack;
     public LayerMask mask;
@@ -127,9 +132,11 @@ public class PlayerController : MonoBehaviour
     {
         animator.SetTrigger("punch");
         currentSpeed *= 2;
+        laughtAudio.Play();
     }
     public void Hit()
     {
+        hitAudio.Play();
         isHit = true;
 
         Collider[] enemies = Physics.OverlapSphere(hitPoint.position, rangeAttack, mask);
